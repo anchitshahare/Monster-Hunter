@@ -10,30 +10,38 @@ public class PlayerActions : MonoBehaviour
     [SerializeField] private BoxCollider2D _groundCheckPoint;
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] Rigidbody2D _rb;
-    [SerializeField] private GameObject playerHand;
+    [SerializeField] private GameObject playerBody;
+    private bool isFacingRight = true;
+
     [SerializeField] private float playerHandPosition = 0.4f;
+    [SerializeField] private Animator playerAnimator;
     private float _horizontalInput;
 
     // Start is called before the first frame update
     void Start()
     {
-        playerHandPosition = playerHand.transform.localPosition.x;
+        
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        // _rb.MovePosition(_rb.position + _horizontalInput * Time.fixedDeltaTime * _speed);
         _rb.velocity = new Vector2(_horizontalInput * _speed  * Time.deltaTime, _rb.velocity.y);
+
+        if(_horizontalInput == 0f) {
+            playerAnimator.SetBool("isRunning", false);
+        } else {
+            playerAnimator.SetBool("isRunning", true);
+        }
     }
 
     public void Move(InputAction.CallbackContext context) {
         _horizontalInput = context.ReadValue<Vector2>().x;
 
-        if(_horizontalInput > 0) {
-            playerHand.transform.localPosition = new Vector2(playerHandPosition, playerHand.transform.localPosition.y);
-        } else if(_horizontalInput < 0) {
-            playerHand.transform.localPosition = new Vector2(-playerHandPosition, playerHand.transform.localPosition.y);
+        if(_horizontalInput > 0 && !isFacingRight) {
+            Flip();
+        } else if(_horizontalInput < 0 && isFacingRight) {
+            Flip();
         }
     }
 
@@ -47,5 +55,12 @@ public class PlayerActions : MonoBehaviour
         return Physics2D.BoxCast(_groundCheckPoint.bounds.center, _groundCheckPoint.bounds.size, 0, Vector2.down, 0.1f, _groundLayer);
     }
     
+    private void Flip() {
+        isFacingRight = !isFacingRight;
+
+        Vector3 theScale = transform.localScale;
+		theScale.x *= -1;
+		transform.localScale = theScale;
+    }
     
 }
