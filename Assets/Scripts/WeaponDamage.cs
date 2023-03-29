@@ -15,6 +15,12 @@ public class WeaponDamage : MonoBehaviour
             StartCoroutine(ResetDamage());
         }
 
+        if(other.CompareTag("Boss") && canDamage) {
+            other.GetComponent<Boss>().TakeDamage(damage);
+            canDamage = false;
+            StartCoroutine(ResetDamage());
+        }
+            
         if(other.CompareTag("Player") && canDamage) {
             other.GetComponent<PlayerActions>().TakeDamage(damage);
             canDamage = false;

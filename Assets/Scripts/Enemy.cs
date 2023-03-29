@@ -30,44 +30,48 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(isDead) return;
-        RaycastHit2D groundHit = Physics2D.Raycast(transform.position, -transform.up, 2f, groundLayer);
+        if(!isDead) {
+            RaycastHit2D groundHit = Physics2D.Raycast(transform.position, -transform.up, 2f, groundLayer);
         
-        if(groundHit.collider != null && Vector2.Distance(transform.position, player.transform.position) < chaseDistance && !player.GetComponent<PlayerActions>().isDead) {
-            if(Vector2.Distance(transform.position, player.transform.position) < attackDistance) {
-                rb.velocity = Vector2.zero;
-                animator.SetBool("isWalking", false);
-                animator.SetBool("isAttacking", true);
-            } else {
-                float direction = Mathf.Sign(player.transform.position.x - transform.position.x);
-                rb.velocity = new Vector2(direction * speed * Time.deltaTime, 0f);
+            if(groundHit.collider != null && Vector2.Distance(transform.position, player.transform.position) < chaseDistance && !player.GetComponent<PlayerActions>().isDead) {
+                if(Vector2.Distance(transform.position, player.transform.position) < attackDistance) {
+                    rb.velocity = Vector2.zero;
+                    animator.SetBool("isWalking", false);
+                    animator.SetBool("isAttacking", true);
+                } else {
+                    float direction = Mathf.Sign(player.transform.position.x - transform.position.x);
+                    rb.velocity = new Vector2(direction * speed * Time.deltaTime, 0f);
 
-                if(direction > 0 && !isFacingRight) {
-                    Flip();
-                } else if (direction < 0 && isFacingRight) {
-                    Flip();
+                    if(direction > 0 && !isFacingRight) {
+                        Flip();
+                    } else if (direction < 0 && isFacingRight) {
+                        Flip();
+                    }
+                    animator.SetBool("isWalking", true);
+                    animator.SetBool("isAttacking", false);
                 }
-                animator.SetBool("isWalking", true);
-                animator.SetBool("isAttacking", false);
-            }
-        } else {
-            if(shouldPatrol) {
-                Patrol();
             } else {
-                rb.velocity = Vector2.zero;
-                animator.SetBool("isWalking", false);
-                animator.SetBool("isAttacking", false);
+                if(shouldPatrol) {
+                    Patrol();
+                } else {
+                    rb.velocity = Vector2.zero;
+                    animator.SetBool("isWalking", false);
+                    animator.SetBool("isAttacking", false);
+                }
             }
         }
+        
     }
 
     public void TakeDamage(int damage) {
         if(isDead) return;
         health -= damage;
-        animator.SetTrigger("hurt");
+        
 
         if(health <= 0) {
             Die();
+        } else {
+            animator.SetTrigger("hurt");
         }
     }
 
@@ -96,13 +100,14 @@ public class Enemy : MonoBehaviour
     
     private void Die() {
         isDead = true;
+        animator.SetBool("isAttacking", false);
         animator.SetTrigger("isDead");
     }
 
     public void Patrol() {
-        
+            animator.SetBool("isAttacking", false);
             RaycastHit2D groundHit = Physics2D.Raycast(transform.position, -transform.up, 2f, groundLayer);
-            
+            RaycastHit2D wallHit = Physics2D.Raycast(transform.position, transform.forward,1f, groundLayer);
             
             if(groundHit.collider == null) {
                 Flip();  
@@ -113,17 +118,5 @@ public class Enemy : MonoBehaviour
             } else {
                 animator.SetBool("isWalking", false);
             }
-        
-        // if(rb.velocity != 0f)
-        // if(!groundHit) {
-        //     Flip();
-        // }
-    }
-
-    private void OnDrawGizmos() {
-        // Gizmos.DrawRay(transform.position, Vector3.down);
-        Debug.DrawRay(transform.position, Vector2.down, Color.red);
-        
-        // Gizmos.DrawLine(transform.position, Vector3.down);
     }
 }

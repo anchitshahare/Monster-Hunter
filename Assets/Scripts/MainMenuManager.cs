@@ -14,6 +14,10 @@ public class MainMenuManager : MonoBehaviour
     public Transform worldCanvasTrans;
     public float space = 0f;
 
+    private void Awake() {
+        worldCanvasTrans = GameObject.Find("Canvas").transform;
+    }
+
     private void Start() {
         instance = this;
     }
@@ -34,17 +38,18 @@ public class MainMenuManager : MonoBehaviour
         for(int i = 0; i < UICards.Length; i++) {
             if(UICards[i].name == collectedCardName) {
                 GameObject newCard = Instantiate(UICards[i], new Vector3(firstPosition.localPosition.x + space, firstPosition.localPosition.y, 0f), Quaternion.identity);
-                newCard.transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
                 newCard.transform.SetParent(worldCanvasTrans, true);
+                newCard.transform.localPosition = new Vector3(firstPosition.localPosition.x + space, firstPosition.localPosition.y, 0f);
+                newCard.transform.localScale = new Vector3(50.0f, 50.0f, 0f);
                 
-                // UICards[i].transform. = new Vector2(firstPosition.localPosition.x + space, firstPosition.localPosition.y);
+                
                 newCard.GetComponent<Animator>().enabled = false;
                 newCard.layer = LayerMask.NameToLayer("UI");
 
                 foreach(Transform child in newCard.transform) {
                     child.gameObject.layer = LayerMask.NameToLayer("UI");
                 }
-                space += 1f;
+                space += 100f;
                 break;
             }
         }
